@@ -2,6 +2,8 @@
 Personal tracking of books (borrowing and lending) between friends.
 
 ## How to run on MacOS & Linux
+- Open terminal
+- Navigate to correct folder
 - To set the environment variable, run `export FLASK_APP=HelloWorld.py`
 - Run `flask run`
 - Alternatively, run `flask run --debug` to see the HTTPS request on the console and automatically have the server restart if the file has changed
