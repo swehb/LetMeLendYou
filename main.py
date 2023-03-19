@@ -100,10 +100,10 @@ def new_user_creation():
 		#username available so you're good to go
 		row = [new_username,password,email]
 		with open('users.csv','a') as f:
-		    writer = csv.writer(f)
-		    writer.writerow(row)
-	 
-        return  render_template("homepage.html")
+			writer = csv.writer(f)
+			writer.writerow(row)
+	
+		return  render_template("homepage.html")
 
 
 
