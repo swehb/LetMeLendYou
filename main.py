@@ -103,7 +103,7 @@ def new_user_creation():
 		    writer = csv.writer(f)
 		    writer.writerow(row)
 	 
-	return "<p> availbllbewr j new user placeholder </p>"
+        return  render_template("homepage.html")
 
 
 

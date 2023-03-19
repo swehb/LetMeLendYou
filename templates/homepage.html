@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+
+{% block head %}
+<title> Rama & Hannah's book project!! </title>
+<style>    .dataPlaceholder {
+       border: 1px solid #DDDDDD;
+       width: 200px;
+       height: 200px;
+       position: relative;
+    }
+    .tag {
+       float: left;
+       position: absolute;
+       left: 70px;
+       top: 450px;
+       z-index: 1000;
+       background-color: #92AD40;
+       padding: 5px;
+       color: #FFFFFF;
+       font-weight: bold;
+    }
+</style>
+{% endblock%}
+
+
+{% block body %}
+<link rel="stylesheet" type="text/css" href=>
+<div class="dataPlaceholder">
+       <div class="tag">Data placeholder</div>
+	   
+       <img src="{{ url_for('static', filename='homepageImage.pgn') }}">
+</div>
+
+<map name="image-map">
+    <area target="_blank" alt="username" title="username" href="_DummyLink_" coords="937,66,1081,101" shape="rect">
+    <area target="_blank" alt="Borrowing plus" title="Borrowing plus" href="_DummyLink_" coords="590,313,498,237" shape="rect">
+    <area target="_blank" alt="Loaning plus" title="Loaning plus" href="_DummyLink_" coords="1177,240,1095,314" shape="rect">
+    <area target="_blank" alt="Gear" title="Gear" href="_DummyLink_" coords="1197,66,1155,100" shape="rect">
+    <area target="_blank" alt="Borrow Sort" title="Borrow Sort" href="_DummyLink_" coords="172,420,194,393" shape="rect">
+    <area target="_blank" alt="Loanign sort" title="Loanign sort" href="_DummyLink_" coords="810,389,788,417" shape="rect">
+</map>
+
+{% endblock%}
