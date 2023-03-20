@@ -59,21 +59,39 @@ def add_entry():
 
 @app.route("/api/login", methods=["GET", "POST"])
 def login_verification():
-	access_granted = False
 	username = request.form.get("username", "unknown")
 	password = request.form.get("password", "unknownpass")
-	print(username, password)
-	print("hello world login" + username)
+	
+
+	# if username is not in csv, "user not found or password incorrect" error
+	# if username and password don't match, "user not found or password incorrect" error
+
+
+	df = pandas.read_csv("users.csv")
+	df2 = df[df["username"].str.fullmatch(username)]
+	df_pass = 0
+
+	if df2["username"].empty:
+		print("user not found")
+		access_granted = False
+	else:
+		if password == df2["password"].to_string(index=False):
+			print("password correct")
+			access_granted = True
+		else:
+			print("password incorrect")
+			access_granted = False
+
+
+
 	#check if user is OK from the database
 	if access_granted == False:
 		print("access not granted")
-		return("access not granted")
-		# return main user page
+		return render_template("login.html")
 	else:
 		print("access granted")
-		return("access granted")
-		# return login page
-	return("success")
+		return render_template("homepage.html")
+
 
 
 @app.route("/api/new_user", methods=["GET", "POST"])
@@ -100,10 +118,10 @@ def new_user_creation():
 		#username available so you're good to go
 		row = [new_username,password,email]
 		with open('users.csv','a') as f:
-		    writer = csv.writer(f)
-		    writer.writerow(row)
-	 
-	return "<p> availbllbewr j new user placeholder </p>"
+			writer = csv.writer(f)
+			writer.writerow(row)
+	
+		return  render_template("homepage.html")
 
 
 

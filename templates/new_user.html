@@ -11,13 +11,13 @@
 
 <form action="/api/new_user" method=POST>
   <label for="username">Username:</label><br>
-  <input type="text" id="username" name="username" value=""><br>
+  <input type="text" id="username" name="username" value="" required><br>
 
   <label for="password">Password:</label><br>
-  <input type="text" id="password" name="password" value=""><br><br>
+  <input type="password" id="password" name="password" value="" required><br><br>
 
   <label for="confirm_pw">Confirm password:</label><br>
-  <input type="text" id="confirm_pw" name="confirm_pw" value=""><br><br>
+  <input type="password" id="confirm_pw" name="confirm_pw" value="" required><br><br>
 
   <label for="email">Email</label><br>
   <input type="email" id="email" name="email" value=""><br><br>
