@@ -25,11 +25,58 @@
 
 
 {% block body %}
+<form action="/api/create_new" method=POST>
+  <label for="bookname">Book Name:</label><br>
+  <input type="text" id="bookname" name="bookname" value="" required><br>
+
+  <label for="duedate">Due Date:</label><br>
+  <input type="text" id="duedate" name="duedate" value=""><br><br>
+
+  <label for="otherparty">Other Party:</label><br>
+  <input type="text" id="otherparty" name="otherparty" value="" required><br><br>
+
+  <input type="submit" value="Submit">
+</form> 
+
+
+
+<table>
+  <tr>
+    <th>Book Name</th>
+    <th>Due Date</th>
+    <th>Other Party</th>
+  </tr>
+  {% for task in tasks %}
+         <tr>
+           <td>{{ task.content }}</td>
+           <td>{{ task.date_created.date() }}</td>
+           <td></td>
+         </tr>
+         {% endfor %}
+         <tr>
+           <td>Centro comercial Moctezuma</td>
+           <td>Francisco Chang</td>
+           <td>Mexico</td>
+         </tr>
+</table>
+
+
+
+
+
 <link rel="stylesheet" type="text/css" href=>
 <div class="dataPlaceholder">
-       <div class="tag">Data placeholder</div>
+       <div class="tag">
+              
+              {% for task in tasks %}
+
+              {{ task.content}}
+
+              {% endfor %}
+
+       </div>
 	   
-       <img src="{{ url_for('static', filename='homepageImage.png') }}">
+       <!-- <img src="{{ url_for('static', filename='homepageImage.png') }}"> -->
 </div>
 
 <map name="image-map">
@@ -40,5 +87,8 @@
     <area target="_blank" alt="Borrow Sort" title="Borrow Sort" href="_DummyLink_" coords="172,420,194,393" shape="rect">
     <area target="_blank" alt="Loanign sort" title="Loanign sort" href="_DummyLink_" coords="810,389,788,417" shape="rect">
 </map>
+
+
+
 
 {% endblock%}

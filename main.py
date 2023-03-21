@@ -1,9 +1,22 @@
-from flask import Flask
-from flask import url_for, render_template, request
+from flask import Flask, url_for, render_template, request, redirect
 import pandas
 import csv
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
+
+with app.app_context():
+	db = SQLAlchemy(app)
+
+class Todo(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	content = db.Column(db.String(200), nullable=False)
+	date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+	def __repr__(self):
+		return '<Task %r>' % self.id
 
 #frontend routes
 
@@ -41,8 +54,8 @@ def forgot_password():
 
 @app.route("/home")
 def home():
-
-	return "<p> your home page </p>"
+	tasks = Todo.query.order_by(Todo.date_created).all()
+	return render_template("homepage.html", tasks=tasks)
 
 @app.route("/add_entry")
 def add_entry():
@@ -90,8 +103,7 @@ def login_verification():
 		return render_template("login.html")
 	else:
 		print("access granted")
-		return render_template("homepage.html")
-
+		return redirect("/home")
 
 
 @app.route("/api/new_user", methods=["GET", "POST"])
@@ -123,6 +135,25 @@ def new_user_creation():
 	
 		return  render_template("homepage.html")
 
+@app.route("/api/create_new", methods=["GET", "POST"])
+def create_new():
+	if request.method == "POST":
+		book_name = request.form["bookname"]
+		#duedate = request.form["duedate"]
+		#otherparty = request.form["otherparty"]
+
+		new_task = Todo(content=book_name)
+
+		try:
+			db.session.add(new_task)
+			db.session.commit()
+			return redirect("/home")
+		except:
+			return "there was an issue adding your task"
+
+	else:
+		tasks = Todo.query.order_by(Todo.date_created).all()
+		return render_template("homepage.html", tasks=tasks)
 
 
 
