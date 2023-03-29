@@ -17,3 +17,11 @@ Personal tracking of books (borrowing and lending) between friends.
 - Javascript
 - mySQL
 - Python
+
+
+## How to create database in Python 3
+- Open terminal and run `python3` to open interactive Python
+- Run `from main import app, db`
+- Run `app.app_context().push()`
+- Run `db.create_all()`
+
