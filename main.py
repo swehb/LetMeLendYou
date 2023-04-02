@@ -69,8 +69,9 @@ def forgot_password():
 def home(username):
 	# tasks = Todo.query.order_by(Todo.date_created).all() # delete later
 
-	entries = Entry.query.order_by(Entry.date_created).all()
-	return render_template("homepage.html", entries=entries, username=username)
+	entries_lending = Entry.query.order_by(Entry.date_created.desc()).filter_by(owner=logged_in_user).all()
+	entries_borrowing = Entry.query.order_by(Entry.date_created.desc()).filter_by(borrower=logged_in_user).all()
+	return render_template("homepage.html", entries_borrowing=entries_borrowing, entries_lending=entries_lending, username=username)
 
 @app.route("/add_entry")
 def add_entry():

@@ -6,3 +6,24 @@ h1 {
 	color: wheat;
 	text-align: center;
 }
+
+h2 {
+	color: navy;
+	text-align: center;
+}
+
+table, th, td {
+	border: 1px solid;
+}
+
+table {
+	width: 100%;
+	height: initial;
+}
+
+.table-container {
+	justify-content: center;
+	margin-top: 50px;
+	width: 50%;
+}
+
