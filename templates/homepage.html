@@ -8,6 +8,7 @@
 
 {% block body %}
 <h1>Welcome, {{ username }}</h1>
+<h2>From the new system, welcome {{ current_user_name }}, {{ current_email }}</h2>
 
 <form action="/api/create_new" method=POST>
   <label for="bookname">Book Name:</label><br>

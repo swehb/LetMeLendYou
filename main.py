@@ -1,23 +1,45 @@
-from flask import Flask, url_for, render_template, request, redirect
+from flask import Flask, url_for, render_template, request, redirect, flash
 import pandas
 import csv
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_login import *
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///entries.db"
+app.secret_key = b'password'
 
 with app.app_context():
 	db = SQLAlchemy(app)
 
 
-class Todo(db.Model):
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+	return usertwo_dict[user_id]
+	#return User.query(User.username).filter_by(username=user_id)
+# WE ARE HERE APRIL 12TH! 
+
+# test class - once new user class verified working correctly, can be deleted
+class Usertwo(UserMixin):
+	def __init__(self, username, email):
+		self.id = username
+		self.email = email
+
+
+class User(UserMixin, db.Model):
+	__tablename__ = "user"
+
 	id = db.Column(db.Integer, primary_key=True)
-	content = db.Column(db.String(200), nullable=False)
-	date_created = db.Column(db.DateTime, default=datetime.utcnow)
+	username = db.Column(db.String(80), unique=True, nullable=False)
+	email = db.Column(db.String(120), unique=True, nullable=False)
+	password = db.Column(db.String(300), nullable=False)
 
 	def __repr__(self):
-		return '<Task %r>' % self.id
+		return '<User %r>' % self.username
 
 
 class Entry(db.Model):
@@ -31,6 +53,16 @@ class Entry(db.Model):
 	def __repr__(self):
 		return '<Entry %r>' % self.id
 
+# hard-coded users
+user_diego = Usertwo("Diego", "d@d.com")
+user_sally = Usertwo("Sally", "s@s.com")
+user_tom = Usertwo("Tom", "t@t.com")
+
+usertwo_dict = {
+	"Diego": user_diego,
+	"Sally": user_sally,
+	"Tom": user_tom
+}
 
 #frontend routes
 
@@ -67,11 +99,9 @@ def forgot_password():
 
 @app.route("/home/user=<username>")
 def home(username):
-	# tasks = Todo.query.order_by(Todo.date_created).all() # delete later
-
 	entries_lending = Entry.query.order_by(Entry.date_created.desc()).filter_by(owner=logged_in_user).all()
 	entries_borrowing = Entry.query.order_by(Entry.date_created.desc()).filter_by(borrower=logged_in_user).all()
-	return render_template("homepage.html", entries_borrowing=entries_borrowing, entries_lending=entries_lending, username=username)
+	return render_template("homepage.html", entries_borrowing=entries_borrowing, entries_lending=entries_lending, username=username, current_user_name=current_user.id, current_email=current_user.email)
 
 @app.route("/add_entry")
 def add_entry():
@@ -117,9 +147,12 @@ def login_verification():
 		print("access not granted")
 		return render_template("login.html")
 	else:
+		login_user(usertwo_dict[username])
+
 		global logged_in_user
 		logged_in_user = username
 		print(f"access granted {logged_in_user}")
+		flash("You were successfully logged in!")
 		return redirect(f"/home/user={username}")
 
 @app.route("/api/new_user", methods=["GET", "POST"])
@@ -152,8 +185,9 @@ def new_user_creation():
 		return  render_template("homepage.html")
 
 @app.route("/api/create_new", methods=["GET", "POST"])
+@login_required
 def create_new():
-	print(logged_in_user)
+	print(current_user.id)
 
 	if request.method == "POST":
 		owner = request.form["owner"]
@@ -174,7 +208,7 @@ def create_new():
 
 	else:
 		entries = Entry.query.order_by(Entry.date_created).all()
-		return render_template("homepage.html", entries=entries)
+		return render_template("homepage.html", current_user_name=current_user.id, entries=entries)
 
 
 
