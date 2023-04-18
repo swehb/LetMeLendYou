@@ -3,42 +3,67 @@
 
 {% block head %}
 <title> Rama & Hannah's book project!! </title>
-<style>    .dataPlaceholder {
-       border: 1px solid #DDDDDD;
-       width: 200px;
-       height: 200px;
-       position: relative;
-    }
-    .tag {
-       float: left;
-       position: absolute;
-       left: 70px;
-       top: 450px;
-       z-index: 1000;
-       background-color: #92AD40;
-       padding: 5px;
-       color: #FFFFFF;
-       font-weight: bold;
-    }
-</style>
 {% endblock%}
 
 
 {% block body %}
-<link rel="stylesheet" type="text/css" href=>
-<div class="dataPlaceholder">
-       <div class="tag">Data placeholder</div>
-	   
-       <img src="{{ url_for('static', filename='homepageImage.png') }}">
+<h1>Welcome, {{ username }}</h1>
+<h2>From the new system, welcome {{ current_user_name }}, {{ current_email }}</h2>
+
+<form action="/api/create_new" method=POST>
+  <label for="bookname">Book Name:</label><br>
+  <input type="text" id="bookname" name="bookname" value="" required><br>
+
+  <!-- <label for="duedate">Due Date:</label><br>
+  <input type="date" id="duedate" name="duedate" value=""><br><br> -->
+
+  <label for="owner">Owner:</label><br>
+  <input type="text" id="owner" name="owner" value="" required><br><br>
+
+
+  <label for="borrower">Borrower:</label><br>
+  <input type="text" id="borrower" name="borrower" value="" required><br><br>
+
+  <input type="submit" value="Submit">
+</form> 
+
+
+<div style="display: flex;">
+    <div class=table-container>
+        <table>
+        <caption><h2>I'm lending</h2></caption>
+          <tr>
+            <th>Book Name</th>
+            <th>Owner</th>
+            <th>Borrower</th>
+          </tr>
+          {% for entry in entries_lending %}
+                 <tr>
+                   <td>{{ entry.book_name }}</td>
+                   <td>{{ entry.owner }}</td>
+                   <td>{{ entry.borrower }}</td>
+                 </tr>
+                 {% endfor %}
+        </table>
+    </div>
+    <div class=table-container>       
+        <table>
+        <caption><h2>I'm borrowing</h2></caption>
+          <tr>
+            <th>Book Name</th>
+            <th>Owner</th>
+            <th>Borrower</th>
+          </tr>
+          {% for entry in entries_borrowing %}
+                 <tr>
+                   <td>{{ entry.book_name }}</td>
+                   <td>{{ entry.owner }}</td>
+                   <td>{{ entry.borrower }}</td>
+                 </tr>
+                 {% endfor %}
+        </table>
+    </div>
 </div>
 
-<map name="image-map">
-    <area target="_blank" alt="username" title="username" href="_DummyLink_" coords="937,66,1081,101" shape="rect">
-    <area target="_blank" alt="Borrowing plus" title="Borrowing plus" href="_DummyLink_" coords="590,313,498,237" shape="rect">
-    <area target="_blank" alt="Loaning plus" title="Loaning plus" href="_DummyLink_" coords="1177,240,1095,314" shape="rect">
-    <area target="_blank" alt="Gear" title="Gear" href="_DummyLink_" coords="1197,66,1155,100" shape="rect">
-    <area target="_blank" alt="Borrow Sort" title="Borrow Sort" href="_DummyLink_" coords="172,420,194,393" shape="rect">
-    <area target="_blank" alt="Loanign sort" title="Loanign sort" href="_DummyLink_" coords="810,389,788,417" shape="rect">
-</map>
 
 {% endblock%}

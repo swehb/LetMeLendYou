@@ -1,9 +1,48 @@
-from flask import Flask
-from flask import url_for, render_template, request
-import pandas
-import csv
+from flask import Flask, url_for, render_template, request, redirect, flash
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+from flask_login import *
+
 
 app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///entries.db"
+app.secret_key = b'password'
+
+with app.app_context():
+	db = SQLAlchemy(app)
+
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+	return User.query.get(str(user_id))
+
+
+class User(UserMixin, db.Model):
+	__tablename__ = "user"
+
+	id = db.Column(db.Integer, primary_key=True)
+	username = db.Column(db.String(80), unique=True, nullable=False)
+	email = db.Column(db.String(120), unique=True, nullable=False)
+	password = db.Column(db.String(300), nullable=False)
+
+	def __repr__(self):
+		return '<User %r>' % self.username
+
+
+class Entry(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	owner = db.Column(db.Integer)
+	borrower = db.Column(db.Integer)
+	book_name = db.Column(db.String(200), nullable=False)
+	due_date = db.Column(db.DateTime, default=datetime.utcnow)
+	date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+	def __repr__(self):
+		return '<Entry %r>' % self.id
+
 
 #frontend routes
 
@@ -24,7 +63,6 @@ def login():
 	# forgot password
 	return render_template("login.html")
 
-
 @app.route("/new_user")
 def new_user():
 	# username field - verify that it is not taken in database
@@ -39,13 +77,15 @@ def forgot_password():
 	# if email does not exist in db, do nothing, else send password
 	return render_template("forgot_password.html")
 
-@app.route("/home")
-def home():
-
-	return "<p> your home page </p>"
+@app.route("/home/user=<username>")
+def home(username):
+	entries_lending = Entry.query.order_by(Entry.date_created.desc()).filter_by(owner=current_user.username).all()
+	entries_borrowing = Entry.query.order_by(Entry.date_created.desc()).filter_by(borrower=current_user.username).all()
+	return render_template("homepage.html", entries_borrowing=entries_borrowing, entries_lending=entries_lending, username=username, current_user_name=current_user.username, current_email=current_user.email)
 
 @app.route("/add_entry")
 def add_entry():
+	# OLD WAY This entire section can be deleted probably as it is covered in the create_new route. 
 	# Form
 		# Name of item (book title) / description - REQUIRED
 		# Return by date - if left blank, default to indefinite 
@@ -55,44 +95,29 @@ def add_entry():
 	# Press “Confirm” / “Save” / whatever button to save the entry
 	return "<p> add a new loan or borrowing entry </p>" 
 
+
 #api routes
 
 @app.route("/api/login", methods=["GET", "POST"])
 def login_verification():
-	username = request.form.get("username", "unknown")
-	password = request.form.get("password", "unknownpass")
+	form_username = request.form.get("username", "unknown")
+	form_password = request.form.get("password", "unknownpass")
+
+	access_granted = False
+	db_password = User.query.filter_by(username=form_username).first().password
 	
+	if form_password == db_password:
+		access_granted = True
 
-	# if username is not in csv, "user not found or password incorrect" error
-	# if username and password don't match, "user not found or password incorrect" error
-
-
-	df = pandas.read_csv("users.csv")
-	df2 = df[df["username"].str.fullmatch(username)]
-	df_pass = 0
-
-	if df2["username"].empty:
-		print("user not found")
-		access_granted = False
-	else:
-		if password == df2["password"].to_string(index=False):
-			print("password correct")
-			access_granted = True
-		else:
-			print("password incorrect")
-			access_granted = False
-
-
-
-	#check if user is OK from the database
 	if access_granted == False:
 		print("access not granted")
 		return render_template("login.html")
 	else:
-		print("access granted")
-		return render_template("homepage.html")
-
-
+		user = User.query.filter_by(username=form_username).first()
+		login_user(user)
+		print(f"access granted {form_username}")
+		flash("You were successfully logged in!")
+		return redirect(f"/home/user={form_username}")
 
 @app.route("/api/new_user", methods=["GET", "POST"])
 def new_user_creation():
@@ -101,28 +126,46 @@ def new_user_creation():
 		# enter password again, must match
 	# creates the new user and password combination
 	# redirect to login page - but autofill the username
+
 	new_username = request.form.get("username", "unknown")
 	password = request.form.get("password","pass")
 	email = request.form.get("email","a@a.com")
-	
-	df = pandas.read_csv('users.csv')
-	
-	df2 = df[df['username'].str.fullmatch(new_username)]
-	
-	if not (df2["username"].empty):
-		#username taken already
-		print(new_username + " is already taken")
+
+	if User.query.filter_by(username=new_username).first() is None: # this checks to see if username is available
+		new_user_entry = User(username=new_username, email=email, password=password)
+
+		try:
+			db.session.add(new_user_entry)
+			db.session.commit()
+			login_user(new_user_entry)
+			return redirect(f"/home/user={new_user_entry.username}")
+		except:
+			return "database addition, login, or redirection failed in try statement"
+	else:
 		return render_template("new_user.html")
 
-	else: 
-		#username available so you're good to go
-		row = [new_username,password,email]
-		with open('users.csv','a') as f:
-			writer = csv.writer(f)
-			writer.writerow(row)
-	
-		return  render_template("homepage.html")
 
+@app.route("/api/create_new", methods=["GET", "POST"])
+@login_required
+def create_new():
+	if request.method == "POST":
+		owner = request.form["owner"]
+		borrower = request.form["borrower"]
+		book_name = request.form["bookname"]
+		# due_date = request.form["duedate"]
+
+		new_entry = Entry(owner=owner, borrower=borrower, book_name=book_name) #, due_date=due_date)
+
+		try:
+			db.session.add(new_entry)
+			db.session.commit()
+			return redirect(f"/home/user={current_user.username}")
+		except:
+			return "there was an issue adding your entry"
+
+	else:
+		entries = Entry.query.order_by(Entry.date_created).all()
+		return render_template("homepage.html", current_user_name=current_user.id, entries=entries)
 
 
 
