@@ -1,6 +1,4 @@
 from flask import Flask, url_for, render_template, request, redirect, flash
-#OLD WAY import pandas
-#import csv
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_login import *
@@ -19,16 +17,7 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-	# OLD WAY return usertwo_dict[user_id]
-	#return User.query(User.username).filter_by(username=user_id)
-	return User.query.filter_by(username=user_id).first()
-
-
-# OLD WAY test class - once new user class verified working correctly, can be deleted
-#class Usertwo(UserMixin):
-#	def __init__(self, username, email):
-#		self.id = username
-#		self.email = email
+	return User.query.get(str(user_id))
 
 
 class User(UserMixin, db.Model):
@@ -41,7 +30,6 @@ class User(UserMixin, db.Model):
 
 	def __repr__(self):
 		return '<User %r>' % self.username
-		#return "Hello world"
 
 
 class Entry(db.Model):
@@ -55,17 +43,6 @@ class Entry(db.Model):
 	def __repr__(self):
 		return '<Entry %r>' % self.id
 
-# OLD WAY # hard-coded users
-# OLD WAY user_diego = Usertwo("Diego", "d@d.com")
-# OLD WAY user_sally = Usertwo("Sally", "s@s.com")
-# OLD WAY user_tom = Usertwo("Tom", "t@t.com")
-# OLD WAY user_emily = Usertwo("Emily", "e@e.com")
-
-# OLD WAY usertwo_dict = {
-# OLD WAY 	"Diego": user_diego,
-# OLD WAY 	"Sally": user_sally,
-# OLD WAY 	"Tom": user_tom,
-# OLD WAY 	"Emily": user_emily}
 
 #frontend routes
 
@@ -102,10 +79,6 @@ def forgot_password():
 
 @app.route("/home/user=<username>")
 def home(username):
-	# OLD WAY because of the use of logged_in_user
-	# entries_lending = Entry.query.order_by(Entry.date_created.desc()).filter_by(owner=logged_in_user).all()
-	# entries_borrowing = Entry.query.order_by(Entry.date_created.desc()).filter_by(borrower=logged_in_user).all()
-
 	entries_lending = Entry.query.order_by(Entry.date_created.desc()).filter_by(owner=current_user.username).all()
 	entries_borrowing = Entry.query.order_by(Entry.date_created.desc()).filter_by(borrower=current_user.username).all()
 	return render_template("homepage.html", entries_borrowing=entries_borrowing, entries_lending=entries_lending, username=username, current_user_name=current_user.username, current_email=current_user.email)
@@ -124,51 +97,24 @@ def add_entry():
 
 
 #api routes
-# OLD WAY logged_in_user = None
 
 @app.route("/api/login", methods=["GET", "POST"])
 def login_verification():
 	form_username = request.form.get("username", "unknown")
 	form_password = request.form.get("password", "unknownpass")
-	
-	# if username is not in csv, "user not found or password incorrect" error
-	# if username and password don't match, "user not found or password incorrect" error
 
-	# OLD WAY df = pandas.read_csv("users.csv")
-	# OLD WAY df2 = df[df["username"].str.fullmatch(username)]
-	# OLD WAY df_pass = 0
-
-	# OLD WAY if df2["username"].empty:
-	# OLD WAY 	print("user not found")
-	# OLD WAY 	access_granted = False
-	# OLD WAY else:
-	# OLD WAY 	if password == df2["password"].to_string(index=False):
-	# OLD WAY 		print("password correct")
-	# OLD WAY 		access_granted = True
-	# OLD WAY 	else:
-	# OLD WAY 		print("password incorrect")
-	# OLD WAY 		access_granted = False
-
-	# TODO: Check that entered password matches the one in the database
 	access_granted = False
 	db_password = User.query.filter_by(username=form_username).first().password
-
-	print(db_password) # DELTE LATER
 	
 	if form_password == db_password:
 		access_granted = True
 
-
-	#check if user is OK from the database
 	if access_granted == False:
 		print("access not granted")
 		return render_template("login.html")
 	else:
-		# OLD WAY login_user(usertwo_dict[username])
-		# OLD WAY global logged_in_user
-		# OLD WAY logged_in_user = username
-
-		login_user(load_user(form_username))
+		user = User.query.filter_by(username=form_username).first()
+		login_user(user)
 		print(f"access granted {form_username}")
 		flash("You were successfully logged in!")
 		return redirect(f"/home/user={form_username}")
@@ -184,10 +130,6 @@ def new_user_creation():
 	new_username = request.form.get("username", "unknown")
 	password = request.form.get("password","pass")
 	email = request.form.get("email","a@a.com")
-	
-	# OLD WAY df = pandas.read_csv('users.csv')
-	
-	# OLD WAY df2 = df[df['username'].str.fullmatch(new_username)]
 
 	if User.query.filter_by(username=new_username).first() is None: # this checks to see if username is available
 		new_user_entry = User(username=new_username, email=email, password=password)
@@ -195,50 +137,29 @@ def new_user_creation():
 		try:
 			db.session.add(new_user_entry)
 			db.session.commit()
-			login_user(new_username)
-			return render_template("homepage.html")
+			login_user(new_user_entry)
+			return redirect(f"/home/user={new_user_entry.username}")
 		except:
-			return "nope nope"
+			return "database addition, login, or redirection failed in try statement"
 	else:
 		return render_template("new_user.html")
-
-	# OLD WAY if not (df2["username"].empty):
-		#username taken already
-	# OLD WAY 	print(new_username + " is already taken")
-	# OLD WAY 	return render_template("new_user.html")
-
-	# OLD WAY else: 
-		#username available so you're good to go
-	# OLD WAY 	row = [new_username,password,email]
-	# OLD WAY 	with open('users.csv','a') as f:
-	# OLD WAY 		writer = csv.writer(f)
-	# OLD WAY 		writer.writerow(row)
-	
-	# OLD WAY 	return render_template("homepage.html")
-
-
 
 
 @app.route("/api/create_new", methods=["GET", "POST"])
 @login_required
 def create_new():
-	print(current_user.id)
-
 	if request.method == "POST":
 		owner = request.form["owner"]
 		borrower = request.form["borrower"]
 		book_name = request.form["bookname"]
 		# due_date = request.form["duedate"]
-		
 
 		new_entry = Entry(owner=owner, borrower=borrower, book_name=book_name) #, due_date=due_date)
 
 		try:
 			db.session.add(new_entry)
 			db.session.commit()
-			# OLD WAY return redirect(f"/home/user={logged_in_user}")
 			return redirect(f"/home/user={current_user.username}")
-			#return "ok"
 		except:
 			return "there was an issue adding your entry"
 
