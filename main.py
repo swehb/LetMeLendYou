@@ -77,11 +77,12 @@ def forgot_password():
 	# if email does not exist in db, do nothing, else send password
 	return render_template("forgot_password.html")
 
-@app.route("/home/user=<username>")
-def home(username):
+@app.route("/home/")
+@login_required
+def home():
 	entries_lending = Entry.query.order_by(Entry.date_created.desc()).filter_by(owner=current_user.username).all()
 	entries_borrowing = Entry.query.order_by(Entry.date_created.desc()).filter_by(borrower=current_user.username).all()
-	return render_template("homepage.html", entries_borrowing=entries_borrowing, entries_lending=entries_lending, username=username, current_user_name=current_user.username, current_email=current_user.email)
+	return render_template("homepage.html", entries_borrowing=entries_borrowing, entries_lending=entries_lending, current_user_name=current_user.username, current_email=current_user.email)
 
 @app.route("/add_entry")
 def add_entry():
@@ -104,20 +105,24 @@ def login_verification():
 	form_password = request.form.get("password", "unknownpass")
 
 	access_granted = False
-	db_password = User.query.filter_by(username=form_username).first().password
-	
-	if form_password == db_password:
-		access_granted = True
+
+	if User.query.filter_by(username=form_username).first() is None:
+		access_granted = False
+	else:
+		db_password = User.query.filter_by(username=form_username).first().password
+		if form_password == db_password:
+			access_granted = True
 
 	if access_granted == False:
 		print("access not granted")
-		return render_template("login.html")
+		flash("Check your username and/or password")
+		return redirect("/login")
 	else:
 		user = User.query.filter_by(username=form_username).first()
 		login_user(user)
 		print(f"access granted {form_username}")
-		flash("You were successfully logged in!")
-		return redirect(f"/home/user={form_username}")
+		# OLD return redirect(f"/home/user={form_username}")
+		return redirect(url_for("home"))
 
 @app.route("/api/new_user", methods=["GET", "POST"])
 def new_user_creation():
@@ -138,7 +143,8 @@ def new_user_creation():
 			db.session.add(new_user_entry)
 			db.session.commit()
 			login_user(new_user_entry)
-			return redirect(f"/home/user={new_user_entry.username}")
+			# OLD return redirect(f"/home/user={new_user_entry.username}")
+			return redirect(url_for("home"))
 		except:
 			return "database addition, login, or redirection failed in try statement"
 	else:
@@ -159,7 +165,9 @@ def create_new():
 		try:
 			db.session.add(new_entry)
 			db.session.commit()
-			return redirect(f"/home/user={current_user.username}")
+			flash("You added an item!")
+			# OLD return redirect(f"/home/user={current_user.username}")
+			return redirect(url_for("home"))
 		except:
 			return "there was an issue adding your entry"
 
@@ -167,6 +175,18 @@ def create_new():
 		entries = Entry.query.order_by(Entry.date_created).all()
 		return render_template("homepage.html", current_user_name=current_user.id, entries=entries)
 
+
+@app.route('/modal')
+@login_required
+def modal():
+	pass
+	# APRIL 25 . WE LEFT OF HERE!
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 
 # NOTE - not sure what this is for. do we need it? 

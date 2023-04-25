@@ -7,17 +7,30 @@
 
 
 {% block body %}
-<h1>Welcome Back!</h1>
 
+<div><h1>Welcome Back!</h1></div>
+
+<div><div class="sign-in">
 <form action="/api/login" method=post>
   <label for="username">Username:</label><br>
   <input type="text" id="username" name="username" value="" required><br>
   <label for="password">Password:</label><br>
   <input type="password" id="password" name="password" value="" required><br><br>
-  <p><a href="forgot_password">Click here if you forgot your password</a></p>
+
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+          <div class="inner-notification">
+          {{ messages[0] }}<br>
+        </div><br>
+  {% endif %}
+  {% endwith %}
+  
   <input type="submit" value="Submit">
 </form> 
 
+
+  <p><a href="forgot_password">Click here if you forgot your password</a></p>
+</div></div>
 <!-- <p>If you click the "Submit" button, the form-data will be sent to a page called "/api/login".</p> -->
 
 {% endblock%}

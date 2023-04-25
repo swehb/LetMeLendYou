@@ -7,12 +7,16 @@
 
 
 {% block body %}
-<h1>Welcome, {{ username }}</h1>
-<h2>From the new system, welcome {{ current_user_name }}, {{ current_email }}</h2>
+<div><h1>Welcome, {{ current_user_name }}</h1></div>
+  
+  <div class="logout">
+    <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+
 
 <form action="/api/create_new" method=POST>
   <label for="bookname">Book Name:</label><br>
-  <input type="text" id="bookname" name="bookname" value="" required><br>
+  <input type="text" id="bookname" name="bookname" value="" required><br><br>
 
   <!-- <label for="duedate">Due Date:</label><br>
   <input type="date" id="duedate" name="duedate" value=""><br><br> -->
@@ -26,6 +30,16 @@
 
   <input type="submit" value="Submit">
 </form> 
+<br><br>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+          {{ messages[0] }} <br><br>
+  {% endif %}
+  {% endwith %}
+
+
+<button class="adding" type="button" onclick="window.location.href = '/modal';">ADD MODAL TEST</button>
+
 
 
 <div style="display: flex;">
