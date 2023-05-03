@@ -3,16 +3,23 @@
 
 {% block head %}
 <title> Rama & Hannah's book project!! </title>
+
+
+
 {% endblock%}
 
 
 {% block body %}
-<h1>Welcome, {{ username }}</h1>
-<h2>From the new system, welcome {{ current_user_name }}, {{ current_email }}</h2>
+<div><h1>Welcome, {{ current_user_name }}</h1></div>
+  
+  <div class="logout">
+    <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+
 
 <form action="/api/create_new" method=POST>
   <label for="bookname">Book Name:</label><br>
-  <input type="text" id="bookname" name="bookname" value="" required><br>
+  <input type="text" id="bookname" name="bookname" value="" required><br><br>
 
   <!-- <label for="duedate">Due Date:</label><br>
   <input type="date" id="duedate" name="duedate" value=""><br><br> -->
@@ -26,43 +33,86 @@
 
   <input type="submit" value="Submit">
 </form> 
+<br><br>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+          {{ messages[0] }} <br><br>
+  {% endif %}
+  {% endwith %}
+
+
+
+
+<button type="button" onclick="window.location.href = '#openModal';">OPEN MODAL TEST</button>
+
+
+<div id="openModal" class="modalDialog"> 
+  <div>
+    <a href="#close" title="Close" class="close">X</a>
+    <h2>Hannah and Rama's Test Modal</h2>
+    <p>This is a sample modal box that can be created using the powers of CSS3.</p>
+    <p>You could do a lot of things here like have a pop-up ad that shows when your website loads, or create a login/register form for users.</p>
+  </div>
+</div>
+
+
+
+
 
 
 <div style="display: flex;">
     <div class=table-container>
         <table>
-        <caption><h2>I'm lending</h2></caption>
-          <tr>
-            <th>Book Name</th>
-            <th>Owner</th>
-            <th>Borrower</th>
-          </tr>
-          {% for entry in entries_lending %}
-                 <tr>
-                   <td>{{ entry.book_name }}</td>
-                   <td>{{ entry.owner }}</td>
-                   <td>{{ entry.borrower }}</td>
-                 </tr>
-                 {% endfor %}
+            <caption>
+                <h2>I'm lending 
+                <button type="button" onclick="window.location.href = '#addItem';">Add +</button></h2>
+            </caption>
+            <tr>
+                <th>Book Name</th>
+                <th>Owner</th>
+                <th>Borrower</th>
+            </tr>
+            {% for entry in entries_lending %}
+            <tr>
+                <td>{{ entry.book_name }}</td>
+                <td>{{ entry.owner }}</td>
+                <td>{{ entry.borrower }}</td>
+            </tr>
+            {% endfor %}
+
+            <div id="addItem" class="modalDialog"> 
+              <div>
+                <a href="#close" title="Close" class="close">X</a>
+                <h2>What item are you lending?</h2>
+                <p>This is a sample modal box that can be created using the powers of CSS3.</p>
+                <p>You could do a lot of things here like have a pop-up ad that shows when your website loads, or create a login/register form for users.</p>
+              </div>
+            </div>
+
         </table>
     </div>
+
+
     <div class=table-container>       
         <table>
-        <caption><h2>I'm borrowing</h2></caption>
-          <tr>
-            <th>Book Name</th>
-            <th>Owner</th>
-            <th>Borrower</th>
-          </tr>
-          {% for entry in entries_borrowing %}
-                 <tr>
-                   <td>{{ entry.book_name }}</td>
-                   <td>{{ entry.owner }}</td>
-                   <td>{{ entry.borrower }}</td>
-                 </tr>
-                 {% endfor %}
+            <caption>
+                <h2>I'm borrowing</h2>
+            </caption>
+            <tr>
+                <th>Book Name</th>
+                <th>Owner</th>
+                <th>Borrower</th>
+            </tr>
+            {% for entry in entries_borrowing %}
+            <tr>
+                <td>{{ entry.book_name }}</td>
+                <td>{{ entry.owner }}</td>
+                <td>{{ entry.borrower }}</td>
+            </tr>
+            {% endfor %}
         </table>
     </div>
+
 </div>
 
 
