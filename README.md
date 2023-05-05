@@ -1,5 +1,5 @@
 # bookproject
-Personal tracking of books (borrowing and lending) between friends.
+Personal tracking of items (borrowing and lending) between friends.
 
 ## How to run on MacOS & Linux
 - Open terminal
