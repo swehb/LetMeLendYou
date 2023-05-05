@@ -2,6 +2,22 @@ from flask import Flask, url_for, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_login import *
+import os, sys
+import json
+import smtplib, ssl
+from email.message import EmailMessage
+
+
+def read_secrets() -> dict:
+	filename = os.path.join('secrets.json')
+	try:
+		with open(filename, mode='r') as f:
+			return json.loads(f.read())
+	except (FileNotFoundError) as error:
+		print(error)
+
+secrets = read_secrets()
+email_auth = secrets['email_key']
 
 
 app = Flask(__name__)
@@ -176,17 +192,35 @@ def create_new():
 		return render_template("homepage.html", current_user_name=current_user.id, entries=entries)
 
 
-@app.route('/modal')
-@login_required
-def modal():
-	pass
-	# APRIL 25 . WE LEFT OF HERE!
+
+@app.route("/api/forgot_password", methods=["GET", "POST"])
+def email_password():
+		email = EmailMessage()
+		forgotpass_emailaddress = request.form["email"]
+
+		email["from"] = "Let Me Lend You App"
+		email["to"] = "letmelendyouapp@gmail.com"
+		email["subject"] = "Reset your password to Let Me Lend You"
+
+		email.set_content(f"You can send this! This email was sent to {forgotpass_emailaddress}")
+
+		try:
+			with smtplib.SMTP(host="smtp.gmail.com", port=587) as smtp:
+				smtp.ehlo()
+				smtp.starttls()
+				smtp.login("letmelendyouapp@gmail.com", email_auth)
+				smtp.send_message(email)
+				print("It's been sent!")
+				return "Email sent"
+		except:
+				return "Status of send unclear"
+
 
 
 @app.route('/logout')
 def logout():
-    logout_user()
-    return redirect(url_for('login'))
+	logout_user()
+	return redirect(url_for('login'))
 
 
 # NOTE - not sure what this is for. do we need it? 
