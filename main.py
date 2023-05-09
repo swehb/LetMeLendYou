@@ -16,9 +16,11 @@ def read_secrets() -> dict:
 	except (FileNotFoundError) as error:
 		print(error)
 
+		
 secrets = read_secrets()
 email_auth = secrets['email_key']
 
+print(email_auth)
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///entries.db"
@@ -195,27 +197,32 @@ def create_new():
 
 @app.route("/api/forgot_password", methods=["GET", "POST"])
 def email_password():
-		email = EmailMessage()
+	
 		forgotpass_emailaddress = request.form["email"]
+		print("the forgotten email is "+forgotpass_emailaddress)
+		
+		if User.query.filter_by(email = forgotpass_emailaddress).first() is	 not None:
+		
+			email = EmailMessage()
+			email["from"] = "Let Me Lend You App"
+			#email["to"] = forgotpass_emailaddress
+			email["to"] = "letmelendyouapp@gmail.com"
+			email["subject"] = "Let Me Lend You app password and username"
+			email.set_content(f"You can send this! This email was sent to {forgotpass_emailaddress}")
 
-		email["from"] = "Let Me Lend You App"
-		email["to"] = "letmelendyouapp@gmail.com"
-		email["subject"] = "Reset your password to Let Me Lend You"
-
-		email.set_content(f"You can send this! This email was sent to {forgotpass_emailaddress}")
-
-		try:
-			with smtplib.SMTP(host="smtp.gmail.com", port=587) as smtp:
-				smtp.ehlo()
-				smtp.starttls()
-				smtp.login("letmelendyouapp@gmail.com", email_auth)
-				smtp.send_message(email)
-				print("It's been sent!")
-				return "Email sent"
-		except:
-				return "Status of send unclear"
-
-
+			try:
+				with smtplib.SMTP(host="smtp.gmail.com", port=587) as smtp:
+					smtp.ehlo()
+					smtp.starttls()
+					smtp.login("letmelendyouapp@gmail.com", email_auth)
+					smtp.send_message(email)
+					print("It's been sent!")
+					return "Email sent"
+			except:
+					return "Status of send unclear"
+		else:
+			print("no such email exists in the DB")
+			return "that email doesn' exist"
 
 @app.route('/logout')
 def logout():
