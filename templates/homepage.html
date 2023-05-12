@@ -43,29 +43,50 @@
 
 
 
-<button type="button" onclick="window.location.href = '#openModal';">OPEN MODAL TEST</button>
+<!-- <button type="button" onclick="window.location.href = '#openModal';">OPEN MODAL TEST</button> -->
 
 
-<div id="openModal" class="modalDialog"> 
+<!-- <div id="openModal" class="modalDialog"> 
   <div>
     <a href="#close" title="Close" class="close">X</a>
     <h2>Hannah and Rama's Test Modal</h2>
     <p>This is a sample modal box that can be created using the powers of CSS3.</p>
     <p>You could do a lot of things here like have a pop-up ad that shows when your website loads, or create a login/register form for users.</p>
   </div>
-</div>
+</div> -->
 
 
 
-
-
-
+<!-- "I'm Lending" and "I'm borrowing" headings and tables -->
 <div style="display: flex;">
     <div class=table-container>
         <table>
             <caption>
+
                 <h2>I'm lending 
-                <button type="button" onclick="window.location.href = '#addItem';">Add +</button></h2>
+                <button type="button" onclick="window.location.href = '#addLend';">Add +</button></h2>
+
+                <div id="addLend" class="modalDialog"> 
+                  <div>
+                    <a href="#close" title="Close" class="close">X</a>
+                    <h2>Add item you're lending</h2>
+                    <p>
+                      <form action="/api/create_new" method=POST>
+                        <label for="bookname">Book Name:</label><br>
+                        <input type="text" id="bookname" name="bookname" value="" required><br><br>
+                        
+                        <label for="owner">Owner:</label><br>
+                        <input type="text" id="owner" name="owner" value="{{ current_user_name }}" readonly="readonly" required><br><br>
+
+                        <label for="borrower">Borrower:</label><br>
+                        <input type="text" id="borrower" name="borrower" value="" required><br><br>
+
+                        <input type="submit" value="Submit">
+                      </form>
+                    </p>
+                  </div>
+                </div>
+
             </caption>
             <tr>
                 <th>Book Name</th>
@@ -79,16 +100,6 @@
                 <td>{{ entry.borrower }}</td>
             </tr>
             {% endfor %}
-
-            <div id="addItem" class="modalDialog"> 
-              <div>
-                <a href="#close" title="Close" class="close">X</a>
-                <h2>What item are you lending?</h2>
-                <p>This is a sample modal box that can be created using the powers of CSS3.</p>
-                <p>You could do a lot of things here like have a pop-up ad that shows when your website loads, or create a login/register form for users.</p>
-              </div>
-            </div>
-
         </table>
     </div>
 
@@ -96,7 +107,30 @@
     <div class=table-container>       
         <table>
             <caption>
-                <h2>I'm borrowing</h2>
+                <h2>I'm borrowing
+                <button type="button" onclick="window.location.href = '#addBorrow';">Add +</button></h2>
+
+                <div id="addBorrow" class="modalDialog"> 
+                  <div>
+                    <a href="#close" title="Close" class="close">X</a>
+                    <h2>Add item you're lending</h2>
+                    <p>
+                      <form action="/api/create_new" method=POST>
+                        <label for="bookname">Book Name:</label><br>
+                        <input type="text" id="bookname" name="bookname" value="" required><br><br>
+                        
+                        <label for="owner">Owner:</label><br>
+                        <input type="text" id="owner" name="owner" value="" required><br><br>
+
+                        <label for="borrower">Borrower:</label><br>
+                        <input type="text" id="borrower" name="borrower" value="{{ current_user_name }}" readonly="readonly" required><br><br>
+
+                        <input type="submit" value="Submit">
+                      </form>
+                    </p>
+                  </div>
+                </div>
+
             </caption>
             <tr>
                 <th>Book Name</th>
