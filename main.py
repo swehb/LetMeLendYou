@@ -176,10 +176,19 @@ def create_new():
 		owner = request.form["owner"]
 		borrower = request.form["borrower"]
 		book_name = request.form["bookname"]
-		# due_date = request.form["duedate"]
-
-		new_entry = Entry(owner=owner, borrower=borrower, book_name=book_name) #, due_date=due_date)
-
+		due_date = request.form["duedate"]
+		due_date_year = int(due_date[0:4])
+		due_date_month = int(due_date[5:7])
+		due_date_day = int(due_date[8:10])
+		
+		print("I'm trying to add a book with the date of " + due_date)
+		print("as a substring " + due_date[0:4]+ " "+ due_date[5:7]+ " "+ due_date[8:10])
+		
+		#new_entry = Entry(owner=owner, borrower=borrower, book_name=book_name) #, due_date=due_date) #without due dates
+		new_entry = Entry(owner=owner, borrower=borrower, book_name=book_name, due_date=datetime(due_date_year,due_date_month,due_date_day)) #with duedates! :)
+		
+		
+		
 		try:
 			db.session.add(new_entry)
 			db.session.commit()

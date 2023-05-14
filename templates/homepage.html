@@ -21,8 +21,8 @@
   <label for="bookname">Book Name:</label><br>
   <input type="text" id="bookname" name="bookname" value="" required><br><br>
 
-  <!-- <label for="duedate">Due Date:</label><br>
-  <input type="date" id="duedate" name="duedate" value=""><br><br> -->
+  <label for="duedate">Due Date:</label><br>
+  <input type="date" id="duedate" name="duedate" value=""><br><br>
 
   <label for="owner">Owner:</label><br>
   <input type="text" id="owner" name="owner" value="" required><br><br>
@@ -136,12 +136,14 @@
                 <th>Book Name</th>
                 <th>Owner</th>
                 <th>Borrower</th>
+				<th>Due_DATE</th>
             </tr>
             {% for entry in entries_borrowing %}
             <tr>
                 <td>{{ entry.book_name }}</td>
                 <td>{{ entry.owner }}</td>
                 <td>{{ entry.borrower }}</td>
+				<td>{{ entry.due_date.strftime('%b %d, %Y')}}	</td>
             </tr>
             {% endfor %}
         </table>
